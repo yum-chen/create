@@ -9,6 +9,11 @@ import {
 export type Scope = "local" | "user" | "system";
 
 /**
+ * Global resolver map store.
+ */
+export const resolver: Record<string, any> = {};
+
+/**
  * Stores configuration values per group ID and scope.
  */
 const scopeStores = new Map<string, Record<Scope, Record<string, any>>>();
@@ -118,14 +123,23 @@ export function parseConfigKey(fullKey: string): {
 }
 
 /**
- * Creates a strongly-typed `defineConfig` function for a config group ID string.
+ * Creates a strongly-typed `defineConfig` function for a config group ID string or schema object.
  */
-export function createDefineConfig(groupId: string): (config: any) => any {
-  const { schema } = resolveGroup(groupId);
+export function createDefineConfig(schemaOrGroupId: any): (config: any) => any {
+  if (typeof schemaOrGroupId === "string") {
+    const { schema } = resolveGroup(schemaOrGroupId);
+    return function defineConfig(configValue: any): any {
+      return schema.parse(configValue);
+    };
+  }
 
-  return function defineConfig(configValue: any): any {
-    return schema.parse(configValue);
-  };
+  if (schemaOrGroupId && typeof schemaOrGroupId.parse === "function") {
+    return function defineConfig(configValue: any): any {
+      return schemaOrGroupId.parse(configValue);
+    };
+  }
+
+  throw new Error("Invalid schema or group ID provided to createDefineConfig.");
 }
 
 /**
@@ -196,16 +210,19 @@ export class ConfigGroupResolver {
   }
 }
 
+const resolveMapWeakMap = new WeakMap<Config, any>();
+
 /**
  * Global Config class and instance constructor.
  */
 export class Config {
+  static resolver = resolver;
   static createDefine = createDefineConfig;
 
   static get(key: string, scope?: Scope): any {
     const { group, fieldKey } = parseConfigKey(key);
-    const resolver = new ConfigGroupResolver(group.meta.id);
-    return resolver.get(fieldKey, scope);
+    const configResolver = new ConfigGroupResolver(group.meta.id);
+    return configResolver.get(fieldKey, scope);
   }
 
   static set(key: string, value: any, scope: Scope = "local"): void {
@@ -213,22 +230,26 @@ export class Config {
     if (!fieldKey) {
       throw new Error(`Cannot set value on config group "${key}" without specifying a field key.`);
     }
-    const resolver = new ConfigGroupResolver(group.meta.id);
-    resolver.set(fieldKey, value, scope);
+    const configResolver = new ConfigGroupResolver(group.meta.id);
+    configResolver.set(fieldKey, value, scope);
   }
 
-  private resolver: ConfigGroupResolver;
+  private groupResolver: ConfigGroupResolver;
 
-  constructor(groupId: string) {
-    this.resolver = new ConfigGroupResolver(groupId);
+  constructor(groupId: string, resolveMap?: any) {
+    this.groupResolver = new ConfigGroupResolver(groupId);
+    if (resolveMap) {
+      resolveMapWeakMap.set(this, resolveMap);
+      resolver[this.groupResolver.groupMeta.id] = resolveMap;
+    }
   }
 
   get(key?: string, scope?: Scope): any {
-    return this.resolver.get(key, scope);
+    return this.groupResolver.get(key, scope);
   }
 
   set(key: string, value: any, scope: Scope = "local"): void {
-    this.resolver.set(key, value, scope);
+    this.groupResolver.set(key, value, scope);
   }
 }
 

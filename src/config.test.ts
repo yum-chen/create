@@ -1,9 +1,9 @@
 import { expect, test } from "vite-plus/test";
-import { Config, createDefineConfig } from "./config.ts";
+import { Config, createDefineConfig, resolver } from "./config.ts";
 import "./config/npm-package.ts";
 import * as Schema from "./schema.ts";
 
-test("Config.createDefine and createDefineConfig work with groupId string", () => {
+test("Config.createDefine and createDefineConfig work with groupId string or schema object", () => {
   const defineConfigFromGroupId = Config.createDefine("config.npmPackage");
   const res1 = defineConfigFromGroupId({ name: "my-app", version: "1.0.0" });
   expect(res1.name).toBe("my-app");
@@ -12,11 +12,18 @@ test("Config.createDefine and createDefineConfig work with groupId string", () =
   const defineConfigFromShortGroupId = createDefineConfig("npm-package-json");
   const res2 = defineConfigFromShortGroupId({ name: "my-lib" });
   expect(res2.name).toBe("my-lib");
+
+  const customSchema = Schema.object({ title: Schema.string() });
+  const defineConfigFromSchema = createDefineConfig(customSchema);
+  const res3 = defineConfigFromSchema({ title: "Custom Title" });
+  expect(res3.title).toBe("Custom Title");
 });
 
-test("new Config('npmPackage') instance get and set", () => {
-  const npmConfig = new Config("npmPackage");
+test("new Config('npmPackage') instance get and set and resolveMap", () => {
+  const npmConfig = new Config("npmPackage", { local: "package.json" });
   expect(npmConfig.get("name")).toBe("@lib/config");
+
+  expect(resolver["npm-package-json"]).toEqual({ local: "package.json" });
 
   npmConfig.set("name", "new-package-name");
   expect(npmConfig.get("name")).toBe("new-package-name");
