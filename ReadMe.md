@@ -34,7 +34,7 @@ import * as Schema from "@lib/config";
 export const nameSchema = Schema.config(Schema.string().nonempty()).meta({
   urn: "urn:config.npmPackage:name",
   key: "name",
-  groupId: "npm-package-json",
+  groupId: "npm-package",
   title: "Name",
 });
 
@@ -45,7 +45,7 @@ export const npmPackageSchema = Schema.configGroup(
   }),
 ).meta({
   urn: "urn:config.npmPackage",
-  id: "npm-package-json",
+  id: "npm-package",
   title: "npm package.json",
   resolveMap: {
     local: "package.json",

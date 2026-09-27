@@ -2,6 +2,57 @@ import { expect, test } from "vite-plus/test";
 import { configFieldRegistry, configGroupRegistry } from "./registries.ts";
 import * as Schema from "./schema.ts";
 
+test("Schema.s is re-exported alias for Schema.z", () => {
+  expect(Schema.s).toBe(Schema.z);
+});
+
+test("Schema.config supports .describe() chaining and registers description in configFieldRegistry", () => {
+  const describedField = Schema.config(Schema.string()).describe("An awesome description").meta({
+    urn: "urn:test:field:described",
+    key: "described",
+    groupId: "test-group-id",
+  });
+
+  expect(describedField.parse("hello")).toBe("hello");
+
+  const meta = configFieldRegistry.get(describedField);
+  expect(meta?.description).toBe("An awesome description");
+  expect(meta?.key).toBe("described");
+});
+
+test("Schema.registry ($SchemaRegistry) supports string key lookup, size, iteration, remove, clear", () => {
+  const reg = Schema.registry<{ id: string; title: string }>();
+  const strSchema = Schema.string();
+  const numSchema = Schema.number();
+
+  reg.add(strSchema, { id: "str-key", title: "String Field" });
+  reg.add(numSchema, { id: "num-key", title: "Number Field" });
+
+  expect(reg.size).toBe(2);
+
+  // Lookup by schema object
+  expect(reg.get(strSchema)).toEqual({ id: "str-key", title: "String Field" });
+
+  // Lookup by string key
+  expect(reg.has("str-key")).toBe(true);
+  expect(reg.get("str-key")).toEqual({ id: "str-key", title: "String Field" });
+  expect(reg.has("nonexistent")).toBe(false);
+
+  // Iteration
+  const entries = Array.from(reg);
+  expect(entries.length).toBe(2);
+  expect(entries[0]![1]).toEqual({ id: "str-key", title: "String Field" });
+
+  // Remove by string key
+  reg.remove("str-key");
+  expect(reg.size).toBe(1);
+  expect(reg.has("str-key")).toBe(false);
+
+  // Clear
+  reg.clear();
+  expect(reg.size).toBe(0);
+});
+
 test("Schema.config registers single field schema into configFieldRegistry using .meta()", () => {
   const nameField = Schema.config(Schema.string().min(1)).meta({
     urn: "urn:test:field:name",
@@ -70,7 +121,6 @@ test("Schema.configGroup registers group schema into configGroupRegistry without
     title: "User Config",
   });
 
-  // Verify group schema auto-built from fields parses valid input
   const parsed = userGroup.parse({ age: 25 });
   expect(parsed.age).toBe(25);
 });

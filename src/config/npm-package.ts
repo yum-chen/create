@@ -3,7 +3,7 @@ import pkgJson from "../../package.json" with { type: "json" };
 import { configFieldRegistry } from "../registries.ts";
 import { seedScopeStore } from "../config.ts";
 
-const NPM_GROUP_ID = "npm-package-json";
+const NPM_GROUP_ID = "npm-package";
 const NPM_GROUP_URN = "urn:npm:package";
 
 // Person schema (used for author, contributors, maintainers)
