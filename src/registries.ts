@@ -1,4 +1,5 @@
-import { registry, type ZodType, object } from "zod";
+import { object } from "zod";
+import { registry } from "./schema.ts";
 
 /** Metadata base for all registries. */
 export type MetadataBase = {
@@ -29,7 +30,7 @@ export type MetadataConfigGroup = {
  * Configuration field registry.
  * Configuration fields are key-value pairs within a {@link ZodType}.
  */
-export const configFieldRegistry = registry<MetadataConfigField, ZodType<any>>();
+export const configFieldRegistry = registry<MetadataConfigField, any>();
 
 export const configFieldReg = configFieldRegistry;
 
@@ -37,7 +38,7 @@ export const configFieldReg = configFieldRegistry;
  * Configuration group registry.
  * Configuration groups are collections of configuration fields sharing the same grouping.
  */
-export const configGroupRegistry = registry<MetadataConfigGroup, ZodType<any>>();
+export const configGroupRegistry = registry<MetadataConfigGroup, any>();
 
 export const configGroupReg = configGroupRegistry;
 
@@ -47,18 +48,6 @@ export const fieldsByGroupIdMap = new Map<
   Map<string, { schema: any; meta: MetadataConfigField }>
 >();
 export const registeredGroupsMap = new Map<string, { schema: any; meta: MetadataConfigGroup }>();
-
-// Make configFieldRegistry iterable
-(configFieldRegistry as any)[Symbol.iterator] = function* () {
-  for (const groupFields of fieldsByGroupIdMap.values()) {
-    yield* groupFields.values();
-  }
-};
-
-// Make configGroupRegistry iterable
-(configGroupRegistry as any)[Symbol.iterator] = function* () {
-  yield* registeredGroupsMap.values();
-};
 
 const origFieldAdd = configFieldRegistry.add.bind(configFieldRegistry);
 configFieldRegistry.add = function (schema: any, meta: any) {
@@ -88,7 +77,7 @@ export function getFieldsForGroupId(
 /**
  * Dynamically builds a Zod object schema for a group ID from all registered fields in configFieldRegistry.
  */
-export function buildGroupSchemaFromFields(groupId: string): ZodType<any> {
+export function buildGroupSchemaFromFields(groupId: string): any {
   const fields = getFieldsForGroupId(groupId);
   const shape: Record<string, any> = {};
 
