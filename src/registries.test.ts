@@ -18,6 +18,7 @@ test("configFieldRegistry registers schema metadata and is iterable", () => {
     groupId: "test-group",
     title: "Foo Field",
     description: "A test foo field",
+    moduleUrl: expect.stringMatching(/src\/registries\.test\.ts$/),
   });
 
   // Test iterable
@@ -56,6 +57,7 @@ test("configGroupRegistry registers group metadata and is iterable", () => {
       user: "~/.testrc",
       system: "/etc/testrc",
     },
+    moduleUrl: expect.stringMatching(/src\/registries\.test\.ts$/),
   });
 
   // Test iterable

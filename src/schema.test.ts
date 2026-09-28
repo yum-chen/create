@@ -18,10 +18,11 @@ test("Schema.config supports .describe() chaining and registers description in c
   const meta = configFieldRegistry.get(describedField);
   expect(meta?.description).toBe("An awesome description");
   expect(meta?.key).toBe("described");
+  expect(meta?.moduleUrl).toMatch(/src\/schema\.test\.ts$/);
 });
 
 test("Schema.registry ($SchemaRegistry) supports string key lookup, size, iteration, remove, clear", () => {
-  const reg = Schema.registry<{ id: string; title: string }>();
+  const reg = Schema.registry<{ id: string; title: string; moduleUrl?: string }>();
   const strSchema = Schema.string();
   const numSchema = Schema.number();
 
@@ -31,17 +32,29 @@ test("Schema.registry ($SchemaRegistry) supports string key lookup, size, iterat
   expect(reg.size).toBe(2);
 
   // Lookup by schema object
-  expect(reg.get(strSchema)).toEqual({ id: "str-key", title: "String Field" });
+  expect(reg.get(strSchema)).toEqual({
+    id: "str-key",
+    title: "String Field",
+    moduleUrl: expect.stringMatching(/src\/schema\.test\.ts$/),
+  });
 
   // Lookup by string key
   expect(reg.has("str-key")).toBe(true);
-  expect(reg.get("str-key")).toEqual({ id: "str-key", title: "String Field" });
+  expect(reg.get("str-key")).toEqual({
+    id: "str-key",
+    title: "String Field",
+    moduleUrl: expect.stringMatching(/src\/schema\.test\.ts$/),
+  });
   expect(reg.has("nonexistent")).toBe(false);
 
   // Iteration
   const entries = Array.from(reg);
   expect(entries.length).toBe(2);
-  expect(entries[0]![1]).toEqual({ id: "str-key", title: "String Field" });
+  expect(entries[0]![1]).toEqual({
+    id: "str-key",
+    title: "String Field",
+    moduleUrl: expect.stringMatching(/src\/schema\.test\.ts$/),
+  });
 
   // Remove by string key
   reg.remove("str-key");
@@ -69,6 +82,7 @@ test("Schema.config registers single field schema into configFieldRegistry using
     key: "name",
     groupId: "test-group-id",
     title: "Name Field",
+    moduleUrl: expect.stringMatching(/src\/schema\.test\.ts$/),
   });
 });
 
@@ -85,6 +99,7 @@ test("Schema.config supports chaining method calls before .meta()", () => {
 
   const meta = configFieldRegistry.get(urnField);
   expect(meta?.urn).toBe("urn:test:field:urnField");
+  expect(meta?.moduleUrl).toMatch(/src\/schema\.test\.ts$/);
 });
 
 test("Schema.config supports integer/number positive().meta()", () => {
@@ -98,6 +113,7 @@ test("Schema.config supports integer/number positive().meta()", () => {
   expect(positiveInt.parse(5)).toBe(5);
   expect(() => positiveInt.parse(-5)).toThrow();
   expect(configFieldRegistry.get(positiveInt)?.key).toBe("positiveInt");
+  expect(configFieldRegistry.get(positiveInt)?.moduleUrl).toMatch(/src\/schema\.test\.ts$/);
 });
 
 test("Schema.configGroup registers group schema into configGroupRegistry without passing field schemas", () => {
@@ -119,8 +135,32 @@ test("Schema.configGroup registers group schema into configGroupRegistry without
     urn: "urn:test:group:user",
     id: "user-config",
     title: "User Config",
+    moduleUrl: expect.stringMatching(/src\/schema\.test\.ts$/),
   });
 
   const parsed = userGroup.parse({ age: 25 });
   expect(parsed.age).toBe(25);
+});
+
+test("automatically sets moduleUrl when omitted in config field and group metadata", () => {
+  const autoField = Schema.config(Schema.boolean()).meta({
+    urn: "urn:test:field:auto",
+    key: "autoField",
+    groupId: "auto-group",
+    title: "Auto Field",
+  });
+
+  const fieldMeta = configFieldRegistry.get(autoField);
+  expect(fieldMeta?.moduleUrl).toBeDefined();
+  expect(fieldMeta?.moduleUrl).toMatch(/src\/schema\.test\.ts$/);
+
+  const autoGroup = Schema.configGroup().meta({
+    urn: "urn:test:group:auto",
+    id: "auto-group",
+    title: "Auto Group",
+  });
+
+  const groupMeta = configGroupRegistry.get(autoGroup);
+  expect(groupMeta?.moduleUrl).toBeDefined();
+  expect(groupMeta?.moduleUrl).toMatch(/src\/schema\.test\.ts$/);
 });
