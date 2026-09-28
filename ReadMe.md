@@ -6,7 +6,7 @@ Configuration management library built on top of Zod schema definitions with sup
 
 - **Proxy-Intercepted `.meta()` Chaining**: Define fields and config groups with `Schema.config(schema).meta(metadata)` and `Schema.configGroup(schema).meta(metadata)` while chaining Zod validation methods.
 - **Strongly Typed `defineConfig`**: Create typed configuration helper functions with `Config.createDefine("groupId")` or `createDefineConfig(schema)`.
-- **Flexible Global & Instance Resolution**: Resolve configuration keys using full URNs (e.g., `urn:config.npm-package:name`), prefixed paths (`config.npm-package.name`), short paths (`npm-package.name`, `npm-package.name`), or group instances (`new Config("npm-package")`).
+- **Flexible Global & Instance Resolution**: Resolve configuration keys using full URNs (e.g., `urn:config:npm-package.name`), prefixed paths (`config.npm-package.name`), short paths (`npm-package.name`), or group instances (`new Config("npm-package")`).
 - **Scope-Aware Management**: Supports scope stores (`local`, `user`, `system`) with automatic fallback priority (`local` -> `user` -> `system`).
 - **Command Line Interface**: Built-in CLI runner supporting `get` and `set` commands with `--scope=<scope>`.
 
@@ -32,7 +32,7 @@ import * as Schema from "@lib/config";
 
 // Register individual field
 export const nameSchema = Schema.config(Schema.string().nonempty()).meta({
-  urn: "config.npm-package.name",
+  urn: "urn:config:npm-package.name",
   key: "name",
   groupId: "npm-package",
   title: "Name",
@@ -44,7 +44,7 @@ export const npmPackageSchema = Schema.configGroup(
     name: nameSchema.optional(),
   }),
 ).meta({
-  urn: "config.npm-package",
+  urn: "urn:config:npm-package",
   id: "npm-package",
   title: "npm package.json",
   resolveMap: {
@@ -96,7 +96,7 @@ Resolve configuration across all registered schemas using full URNs or short key
 import { Config } from "@lib/config";
 
 // Supports full URN or short keys
-Config.get("urn:config.npm-package:name");
+Config.get("urn:config:npm-package.name");
 Config.get("config.npm-package.name");
 Config.get("npm-package:name");
 Config.get("npm-package.name");

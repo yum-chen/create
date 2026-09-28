@@ -2,7 +2,7 @@ import * as Schema from "../schema.ts";
 import { seedScopeStore } from "../config.ts";
 
 const STD_GROUP_ID = "std";
-const STD_GROUP_URN = "config.std";
+const STD_GROUP_URN = "urn:config:std";
 
 export const codegenItemSchema = Schema.object({
   src: Schema.string(),

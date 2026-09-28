@@ -12,7 +12,7 @@ test("npmPackageSchema validates current package.json successfully", () => {
 test("npmPackageSchema is registered on configGroupRegistry with resolveMap", () => {
   const meta = configGroupRegistry.get(npmPackageSchema);
   expect(meta).toBeDefined();
-  expect(meta?.urn).toBe("config.npm-package");
+  expect(meta?.urn).toBe("urn:config:npm-package");
   expect(meta?.id).toBe("npm-package");
   expect(meta?.resolveMap).toEqual({
     local: "package.json",
@@ -22,7 +22,7 @@ test("npmPackageSchema is registered on configGroupRegistry with resolveMap", ()
 test("nameSchema is registered on configFieldRegistry", () => {
   const meta = configFieldRegistry.get(nameSchema);
   expect(meta).toBeDefined();
-  expect(meta?.urn).toBe("config.npm-package.name");
+  expect(meta?.urn).toBe("urn:config:npm-package.name");
   expect(meta?.key).toBe("name");
   expect(meta?.groupId).toBe("npm-package");
   expect(meta?.title).toBe("Name");

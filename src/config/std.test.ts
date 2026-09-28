@@ -17,7 +17,7 @@ test("stdSchema validates default std configuration", () => {
 test("stdSchema is registered on configGroupRegistry", () => {
   const meta = configGroupRegistry.get(stdSchema);
   expect(meta).toBeDefined();
-  expect(meta?.urn).toBe("urn:config.std");
+  expect(meta?.urn).toBe("urn:config:std");
   expect(meta?.id).toBe("std");
 });
 
