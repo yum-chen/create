@@ -577,4 +577,87 @@ const configs = npmPackageSchema.parse(pkgJson);
 seedScopeStore(NPM_GROUP_ID, "local", configs);
 const value = configs;
 
+export interface PersonConfig {
+  name: string;
+  email?: string;
+  url?: string;
+}
+
+export type Person = string | PersonConfig;
+
+export interface BugsConfig {
+  url?: string;
+  email?: string;
+}
+
+export type Bugs = string | BugsConfig;
+
+export interface RepositoryConfig {
+  type: string;
+  url: string;
+  directory?: string;
+}
+
+export type Repository = string | RepositoryConfig;
+
+export interface DirectoriesConfig {
+  bin?: string;
+  doc?: string;
+  lib?: string;
+  man?: string;
+  [key: string]: unknown;
+}
+
+export type Workspaces =
+  | string[]
+  | {
+      packages?: string[];
+      [key: string]: unknown;
+    };
+
+export interface NpmPackageConfig {
+  name?: string;
+  version?: string;
+  description?: string;
+  keywords?: string[];
+  homepage?: string;
+  bugs?: Bugs;
+  license?: string;
+  author?: Person;
+  contributors?: Person[];
+  maintainers?: Person[];
+  files?: string[];
+  main?: string;
+  exports?: unknown;
+  type?: "module" | "commonjs";
+  browser?: string | Record<string, string | boolean>;
+  bin?: string | Record<string, string>;
+  man?: string | string[];
+  directories?: DirectoriesConfig;
+  repository?: Repository;
+  scripts?: Record<string, string>;
+  gypfile?: boolean;
+  config?: Record<string, unknown>;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  peerDependenciesMeta?: Record<string, { optional?: boolean }>;
+  bundleDependencies?: string[] | boolean;
+  bundledDependencies?: string[] | boolean;
+  optionalDependencies?: Record<string, string>;
+  overrides?: Record<string, unknown>;
+  packageExtensions?: Record<string, unknown>;
+  engines?: Record<string, string>;
+  os?: string | string[];
+  cpu?: string | string[];
+  libc?: string | string[];
+  devEngines?: Record<string, unknown>;
+  private?: boolean;
+  publishConfig?: Record<string, unknown>;
+  workspaces?: Workspaces;
+  [key: string]: unknown;
+}
+
+export type NpmPackageUserConfig = NpmPackageConfig;
+
 export { configs, npmPackageSchema, value };
