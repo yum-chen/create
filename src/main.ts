@@ -2,7 +2,9 @@ import { cli } from "./cli.ts";
 
 export * from "./cli.ts";
 export * from "./config.ts";
+export type * from "./config.d.ts";
 export * from "./config/npm-package.ts";
+export type * from "./config/npm-package.d.ts";
 export * from "./registries.ts";
 export * from "./schema.ts";
 export { set } from "./config.ts";

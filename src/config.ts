@@ -1,3 +1,5 @@
+import type { ZodType, input as ZodInput, output as ZodOutput } from "zod";
+import type { NpmPackageConfig } from "./config/npm-package.ts";
 import {
   buildGroupSchemaFromFields,
   getFieldsForGroupId,
@@ -5,6 +7,20 @@ import {
   registeredGroupsMap,
   type MetadataConfigGroup,
 } from "./registries.ts";
+
+export interface UserConfigGroupMap {
+  "npm-package-json": NpmPackageConfig;
+  "config.npmPackage": NpmPackageConfig;
+  npmPackage: NpmPackageConfig;
+  "urn:npm:package": NpmPackageConfig;
+  [key: string]: Record<string, any>;
+}
+
+export interface UserConfig extends NpmPackageConfig {
+  [key: string]: any;
+}
+
+export type DefineConfigFn<T = UserConfig> = <C extends T = T>(config: C) => C;
 
 export type Scope = "local" | "user" | "system";
 
@@ -125,6 +141,15 @@ export function parseConfigKey(fullKey: string): {
 /**
  * Creates a strongly-typed `defineConfig` function for a config group ID string or schema object.
  */
+export function createDefineConfig<G extends keyof UserConfigGroupMap>(
+  groupId: G,
+): <C extends UserConfigGroupMap[G]>(config: C) => C;
+export function createDefineConfig<T extends ZodType>(
+  schema: T,
+): <C extends ZodInput<T>>(config: C) => ZodOutput<T>;
+export function createDefineConfig<T = UserConfig>(
+  schemaOrGroupId: any,
+): <C extends T>(config: C) => C;
 export function createDefineConfig(schemaOrGroupId: any): (config: any) => any {
   if (typeof schemaOrGroupId === "string") {
     const { schema } = resolveGroup(schemaOrGroupId);

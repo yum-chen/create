@@ -19,6 +19,23 @@ test("Config.createDefine and createDefineConfig work with groupId string or sch
   expect(res3.title).toBe("Custom Title");
 });
 
+test("defineConfig provides strongly typed config inferencing", () => {
+  const defineConfig = createDefineConfig("npmPackage");
+  const pkgConfig = defineConfig({
+    name: "typed-package",
+    version: "2.0.0",
+    description: "Strongly typed config test",
+    type: "module",
+    scripts: {
+      test: "vp test",
+    },
+  });
+
+  expect(pkgConfig.name).toBe("typed-package");
+  expect(pkgConfig.type).toBe("module");
+  expect(pkgConfig.scripts?.test).toBe("vp test");
+});
+
 test("new Config('npmPackage') instance get and set and resolveMap", () => {
   const npmConfig = new Config("npmPackage", { local: "package.json" });
   expect(npmConfig.get("name")).toBe("@lib/config");
