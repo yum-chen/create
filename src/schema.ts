@@ -1,3 +1,4 @@
+import { pathToFileURL } from "node:url";
 import { type ZodType, globalRegistry as defaultGlobalRegistry } from "zod";
 import {
   buildGroupSchemaFromFields,
@@ -5,6 +6,45 @@ import {
   configGroupRegistry,
   type MetadataConfigField,
 } from "./registries.ts";
+
+export function getCallerModuleUrl(): string | undefined {
+  const stack = new Error().stack;
+  if (!stack) return undefined;
+  const lines = stack.split("\n");
+
+  for (const line of lines) {
+    if (
+      line.includes("schema.ts") ||
+      line.includes("schema.js") ||
+      line.includes("registries.ts") ||
+      line.includes("registries.js") ||
+      line.includes("node:internal") ||
+      line.includes("node_modules")
+    ) {
+      continue;
+    }
+
+    const match = line.match(/(https?:\/\/|file:\/\/|\/|[A-Za-z]:[\\/])[^\s):]+/);
+    if (match) {
+      let filePath = match[0];
+      filePath = filePath.replace(/(:\d+)+$/, "");
+
+      if (
+        filePath.startsWith("file://") ||
+        filePath.startsWith("http://") ||
+        filePath.startsWith("https://")
+      ) {
+        return filePath;
+      }
+      try {
+        return pathToFileURL(filePath).href;
+      } catch {
+        return filePath;
+      }
+    }
+  }
+  return undefined;
+}
 
 export * from "zod";
 export { z as s } from "zod";
@@ -32,6 +72,15 @@ export class $SchemaRegistry<
 
   add<S extends Schema>(schema: S, ..._metaArr: undefined extends Meta ? [any?] : [any]): this {
     const meta = _metaArr[0];
+    if (meta && typeof meta === "object") {
+      if (!meta.moduleUrl) {
+        const callerUrl = getCallerModuleUrl();
+        if (callerUrl) {
+          meta.moduleUrl = callerUrl;
+        }
+      }
+    }
+
     if (schema && (typeof schema === "object" || typeof schema === "function")) {
       this._map.set(schema, meta);
     }
@@ -176,6 +225,12 @@ function createConfigProxy<T extends ZodType<any>, M>(
   let currentMeta: any = initialMeta ? { ...initialMeta } : undefined;
 
   if (currentMeta) {
+    if (!currentMeta.moduleUrl) {
+      const callerUrl = getCallerModuleUrl();
+      if (callerUrl) {
+        currentMeta.moduleUrl = callerUrl;
+      }
+    }
     if (!currentSchema && currentMeta.id) {
       currentSchema = buildGroupSchemaFromFields(currentMeta.id);
     }
@@ -190,7 +245,11 @@ function createConfigProxy<T extends ZodType<any>, M>(
     get(_target, prop, _receiver) {
       if (prop === "meta") {
         return (meta: M) => {
+          const callerUrl = getCallerModuleUrl();
           currentMeta = currentMeta ? { ...currentMeta, ...meta } : { ...meta };
+          if (!currentMeta.moduleUrl && callerUrl) {
+            currentMeta.moduleUrl = callerUrl;
+          }
           if (!currentSchema && currentMeta.id) {
             currentSchema = buildGroupSchemaFromFields(currentMeta.id);
           }

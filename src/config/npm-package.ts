@@ -20,7 +20,6 @@ const personSchema = Schema.union([
   groupId: NPM_GROUP_ID,
   title: "Person",
   description: "Person schema (used for author, contributors, maintainers)",
-  moduleUrl: import.meta.url,
 });
 
 // Funding schema
@@ -38,7 +37,6 @@ export const fundingSchema = Schema.union([
   groupId: NPM_GROUP_ID,
   title: "Person",
   description: "Person schema (used for author, contributors, maintainers)",
-  moduleUrl: import.meta.url,
 });
 
 // Repository schema
@@ -55,7 +53,6 @@ const repositoryValueSchema = Schema.union([
   groupId: NPM_GROUP_ID,
   title: "Repository",
   description: "Repository schema",
-  moduleUrl: import.meta.url,
 });
 
 // Bugs schema
@@ -115,7 +112,6 @@ Some tips:
   You may want to check the npm registry to see if there's something by that name already, before you get too attached to it. https://www.npmjs.com/
 
 A name can be optionally prefixed by a scope, e.g. @npm/example. See scope for more detail.`,
-  moduleUrl: import.meta.url,
   examples: ["@npm/example"],
 });
 
@@ -125,7 +121,6 @@ export const versionSchema = Schema.config(Schema.string()).meta({
   groupId: NPM_GROUP_ID,
   title: "Version",
   description: "Version must be parseable by node-semver.",
-  moduleUrl: import.meta.url,
   examples: ["1.0.0"],
 });
 
@@ -136,7 +131,6 @@ export const descriptionSchema = Schema.config(Schema.string()).meta({
   title: "Description",
   description:
     "Put a description in it. It's a string. This helps people discover your package, as it's listed in npm search.",
-  moduleUrl: import.meta.url,
   examples: ["A packaged foo"],
 });
 
@@ -147,7 +141,6 @@ export const keywordsSchema = Schema.config(Schema.array(Schema.string())).meta(
   title: "Keywords",
   description:
     "Put keywords in it. It's an array of strings. This helps people discover your package as it's listed in npm search.",
-  moduleUrl: import.meta.url,
   examples: [["node", "javascript", "npm"]],
 });
 
@@ -157,7 +150,6 @@ export const homepageSchema = Schema.config(Schema.string()).meta({
   groupId: NPM_GROUP_ID,
   title: "Homepage",
   description: "The URL to the project homepage.",
-  moduleUrl: import.meta.url,
   examples: ["https://github.com/npm/example#readme"],
 });
 
@@ -168,7 +160,6 @@ export const bugsSchema = Schema.config(bugsValueSchema).meta({
   title: "Bugs",
   description:
     "The URL to your project's issue tracker and / or the email address to which issues should be reported.",
-  moduleUrl: import.meta.url,
   examples: [
     {
       url: "https://github.com/npm/example/issues",
@@ -184,7 +175,6 @@ export const licenseSchema = Schema.config(Schema.string()).meta({
   title: "License",
   description:
     "You should specify a license for your package so that people know how they are permitted to use it, and any restrictions you're placing on it.",
-  moduleUrl: import.meta.url,
   examples: ["BSD-3-Clause"],
 });
 
@@ -194,7 +184,6 @@ export const authorSchema = Schema.config(personSchema).meta({
   groupId: NPM_GROUP_ID,
   title: "Author",
   description: "The author is one person.",
-  moduleUrl: import.meta.url,
   examples: ["Barney Rubble <barney@npmjs.com> (http://barnyrubble.npmjs.com/)"],
 });
 
@@ -204,7 +193,6 @@ export const contributorsSchema = Schema.config(Schema.array(personSchema)).meta
   groupId: NPM_GROUP_ID,
   title: "Contributors",
   description: "Contributors is an array of people.",
-  moduleUrl: import.meta.url,
   examples: [[{ name: "Barney Rubble" }]],
 });
 
@@ -214,7 +202,6 @@ export const maintainersSchema = Schema.config(Schema.array(personSchema)).meta(
   groupId: NPM_GROUP_ID,
   title: "Maintainers",
   description: "npm also sets a top-level maintainers field with your npm user info.",
-  moduleUrl: import.meta.url,
   examples: [[{ name: "Barney Rubble" }]],
 });
 
@@ -225,7 +212,6 @@ export const filesSchema = Schema.config(Schema.array(Schema.string())).meta({
   title: "Files",
   description:
     "The optional files field is an array of file patterns that describes the entries to be included when your package is installed as a dependency.",
-  moduleUrl: import.meta.url,
   examples: [["dist"]],
 });
 
@@ -235,7 +221,6 @@ export const mainSchema = Schema.config(Schema.string()).meta({
   groupId: NPM_GROUP_ID,
   title: "Main",
   description: "The main field is a module ID that is the primary entry point to your program.",
-  moduleUrl: import.meta.url,
   examples: ["./dist/main.mjs"],
 });
 
@@ -246,7 +231,6 @@ export const exportsSchema = Schema.config(Schema.unknown()).meta({
   title: "Exports",
   description:
     "The exports field provides a modern alternative to main allowing multiple entry points to be defined.",
-  moduleUrl: import.meta.url,
   examples: [{ ".": "./dist/main.mjs" }],
 });
 
@@ -256,7 +240,6 @@ export const typeSchema = Schema.config(Schema.enum(["module", "commonjs"])).met
   groupId: NPM_GROUP_ID,
   title: "Type",
   description: "The type field defines how Node.js should interpret .js files in your package.",
-  moduleUrl: import.meta.url,
   examples: ["module"],
 });
 
@@ -272,7 +255,6 @@ export const browserSchema = Schema.config(
   title: "Browser",
   description:
     "If your module is meant to be used client-side the browser field should be used instead of the main field.",
-  moduleUrl: import.meta.url,
   examples: ["build/browser.js"],
 });
 
@@ -283,7 +265,6 @@ export const binSchema = Schema.config(binValueSchema).meta({
   title: "Bin",
   description:
     "A lot of packages have one or more executable files that they'd like to install into the PATH.",
-  moduleUrl: import.meta.url,
   examples: [{ myapp: "bin/cli.js" }],
 });
 
@@ -293,7 +274,6 @@ export const manSchema = Schema.config(manValueSchema).meta({
   groupId: NPM_GROUP_ID,
   title: "Man",
   description: "Specify either a single file or an array of filenames to include as man pages.",
-  moduleUrl: import.meta.url,
   examples: ["./man/doc.1"],
 });
 
@@ -304,7 +284,6 @@ export const directoriesSchema = Schema.config(directoriesValueSchema).meta({
   title: "Directories",
   description:
     "The CommonJS Packages spec details a few ways that you can indicate the structure of your package using a directories object.",
-  moduleUrl: import.meta.url,
   examples: [{ lib: "lib" }],
 });
 
@@ -314,7 +293,6 @@ export const repositorySchema = Schema.config(repositoryValueSchema).meta({
   groupId: NPM_GROUP_ID,
   title: "Repository",
   description: "Specify the place where your code lives.",
-  moduleUrl: import.meta.url,
   examples: [
     {
       type: "git",
@@ -330,7 +308,6 @@ export const scriptsSchema = Schema.config(Schema.record(Schema.string(), Schema
   title: "Scripts",
   description:
     "The scripts property is a dictionary containing script commands that are run at various times in the lifecycle of your package.",
-  moduleUrl: import.meta.url,
   examples: [{ test: "vp test" }],
 });
 
@@ -341,7 +318,6 @@ export const gypfileSchema = Schema.config(Schema.boolean()).meta({
   title: "Gypfile",
   description:
     "Set gypfile to false to prevent npm from automatically building your module with node-gyp.",
-  moduleUrl: import.meta.url,
   examples: [false],
 });
 
@@ -352,7 +328,6 @@ export const configSchema = Schema.config(Schema.record(Schema.string(), Schema.
   title: "Config",
   description:
     "A config object can be used to set configuration parameters used in package scripts.",
-  moduleUrl: import.meta.url,
   examples: [{ port: "8080" }],
 });
 
@@ -365,7 +340,6 @@ export const dependenciesSchema = Schema.config(
   title: "Dependencies",
   description:
     "Dependencies are specified in a simple object that maps a package name to a version range.",
-  moduleUrl: import.meta.url,
   examples: [{ zod: "^4.0.0" }],
 });
 
@@ -377,7 +351,6 @@ export const devDependenciesSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "DevDependencies",
   description: "Map additional tools needed for development in a devDependencies object.",
-  moduleUrl: import.meta.url,
   examples: [{ "vite-plus": "^1.0.0" }],
 });
 
@@ -389,7 +362,6 @@ export const peerDependenciesSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "PeerDependencies",
   description: "Express the compatibility of your package with a host tool or library.",
-  moduleUrl: import.meta.url,
   examples: [{ typescript: "^7.0.0" }],
 });
 
@@ -401,7 +373,6 @@ export const peerDependenciesMetaSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "PeerDependenciesMeta",
   description: "Provides npm more information on how your peer dependencies are to be used.",
-  moduleUrl: import.meta.url,
   examples: [{ "@npm/soy-milk": { optional: true } }],
 });
 
@@ -414,7 +385,6 @@ export const bundleDependenciesSchema = Schema.config(
   title: "BundleDependencies",
   description:
     "Defines an array of package names that will be bundled when publishing the package.",
-  moduleUrl: import.meta.url,
   examples: [["@npm/renderized"]],
 });
 
@@ -426,7 +396,6 @@ export const bundledDependenciesSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "BundledDependencies",
   description: "Alternative spelling for bundleDependencies.",
-  moduleUrl: import.meta.url,
   examples: [["@npm/renderized"]],
 });
 
@@ -438,7 +407,6 @@ export const optionalDependenciesSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "OptionalDependencies",
   description: "Map of package name to version or URL that npm can proceed if installation fails.",
-  moduleUrl: import.meta.url,
   examples: [{ "@npm/foo": "^1.0.0" }],
 });
 
@@ -450,7 +418,6 @@ export const overridesSchema = Schema.config(Schema.record(Schema.string(), Sche
     title: "Overrides",
     description:
       "Replace a package in your dependency tree with another version or package entirely.",
-    moduleUrl: import.meta.url,
     examples: [{ vite: "npm:@voidzero-dev/vite-plus-core@1.0.0-rc.1" }],
   },
 );
@@ -463,7 +430,6 @@ export const packageExtensionsSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "PackageExtensions",
   description: "Apply small, declarative repairs to the manifests of third-party dependencies.",
-  moduleUrl: import.meta.url,
   examples: [
     {
       "broken-package@1": { dependencies: { "missing-dep": "^2.0.0" } },
@@ -477,7 +443,6 @@ export const enginesSchema = Schema.config(Schema.record(Schema.string(), Schema
   groupId: NPM_GROUP_ID,
   title: "Engines",
   description: "Specify the version of node or npm that your stuff works on.",
-  moduleUrl: import.meta.url,
   examples: [{ node: ">=18" }],
 });
 
@@ -489,7 +454,6 @@ export const osSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "OS",
   description: "Specify which operating systems your module will run on.",
-  moduleUrl: import.meta.url,
   examples: [["darwin", "linux"]],
 });
 
@@ -501,7 +465,6 @@ export const cpuSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "CPU",
   description: "Specify which cpu architectures your module will run on.",
-  moduleUrl: import.meta.url,
   examples: [["x64", "ia32"]],
 });
 
@@ -513,7 +476,6 @@ export const libcSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "Libc",
   description: "Specify which versions of libc your module runs or builds in.",
-  moduleUrl: import.meta.url,
   examples: ["glibc"],
 });
 
@@ -525,7 +487,6 @@ export const devEnginesSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "DevEngines",
   description: "Aids engineers working on a codebase to all be using the same tooling.",
-  moduleUrl: import.meta.url,
   examples: [{ packageManager: { name: "npm", version: "11.11.0" } }],
 });
 
@@ -535,7 +496,6 @@ export const privateSchema = Schema.config(Schema.boolean()).meta({
   groupId: NPM_GROUP_ID,
   title: "Private",
   description: "If set to true, npm will refuse to publish it.",
-  moduleUrl: import.meta.url,
   examples: [true],
 });
 
@@ -547,7 +507,6 @@ export const publishConfigSchema = Schema.config(
   groupId: NPM_GROUP_ID,
   title: "PublishConfig",
   description: "Set of config values that will be used at publish-time.",
-  moduleUrl: import.meta.url,
   examples: [{ access: "public" }],
 });
 
@@ -557,7 +516,6 @@ export const workspacesSchema = Schema.config(workspacesValueSchema).meta({
   groupId: NPM_GROUP_ID,
   title: "Workspaces",
   description: "Describes locations within the local file system for workspace packages.",
-  moduleUrl: import.meta.url,
   examples: [["./packages/*"]],
 });
 
@@ -567,7 +525,6 @@ const npmPackageSchema = Schema.configGroup().meta({
   id: NPM_GROUP_ID,
   title: "npm package.json",
   description: "Schema for npm package.json manifest",
-  moduleUrl: import.meta.url,
   resolveMap: {
     local: "package.json",
   },
