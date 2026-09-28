@@ -18,7 +18,7 @@
     "fmt": "vp fmt",
     "lint": "vp lint",
     "prepublishOnly": "vp run build",
-    "prepare": "vp config"
+    "prepare": "node --experimental-strip-types scripts/config-gen.ts"
   },
   "dependencies": {
     "zod": "^4.6.5"

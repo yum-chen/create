@@ -1,3 +1,5 @@
+import type { NpmPackageConfig } from "./config/npm-package.ts";
+import type { StdConfig } from "./config/std.ts";
 import {
   buildGroupSchemaFromFields,
   getFieldsForGroupId,
@@ -5,6 +7,18 @@ import {
   registeredGroupsMap,
   type MetadataConfigGroup,
 } from "./registries.ts";
+
+export interface UserConfig extends NpmPackageConfig, Partial<StdConfig> {
+  [key: string]: any;
+}
+
+export interface ConfigGroupMap {
+  "npm-package": NpmPackageConfig;
+  "config.npm-package": NpmPackageConfig;
+  npmPackage: NpmPackageConfig;
+  std: StdConfig;
+  "config.std": StdConfig;
+}
 
 export type Scope = "local" | "user" | "system";
 
@@ -143,6 +157,28 @@ export function createDefineConfig(schemaOrGroupId: any): (config: any) => any {
 }
 
 /**
+ * Strongly typed `defineConfig` helper function supporting object input, group ID, or schema.
+ */
+export function defineConfig<T extends Record<string, any> = UserConfig>(config: T): T;
+export function defineConfig<K extends keyof ConfigGroupMap>(
+  groupId: K,
+  config: ConfigGroupMap[K],
+): ConfigGroupMap[K];
+export function defineConfig(arg1: any, arg2?: any): any {
+  if (arg2 !== undefined) {
+    const fn = createDefineConfig(arg1);
+    return fn(arg2);
+  }
+  if (typeof arg1 === "string" || (arg1 && typeof arg1.parse === "function")) {
+    return createDefineConfig(arg1);
+  }
+  if (arg1 && typeof arg1 === "object") {
+    return arg1;
+  }
+  throw new Error("Invalid arguments provided to defineConfig.");
+}
+
+/**
  * Group Resolver providing scope-aware `.get()` and `.set()` methods for a specific config group.
  */
 export class ConfigGroupResolver {
@@ -218,6 +254,7 @@ const resolveMapWeakMap = new WeakMap<Config, any>();
 export class Config {
   static resolver = resolver;
   static createDefine = createDefineConfig;
+  static define = defineConfig;
 
   static get(key: string, scope?: Scope): any {
     const { group, fieldKey } = parseConfigKey(key);

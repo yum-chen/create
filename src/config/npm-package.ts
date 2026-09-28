@@ -418,7 +418,7 @@ export const overridesSchema = Schema.config(Schema.record(Schema.string(), Sche
     title: "Overrides",
     description:
       "Replace a package in your dependency tree with another version or package entirely.",
-  
+
     examples: [{ vite: "npm:@voidzero-dev/vite-plus-core@1.0.0-rc.1" }],
   },
 );
@@ -534,5 +534,7 @@ const npmPackageSchema = Schema.configGroup().meta({
 const configs = npmPackageSchema.parse(pkgJson);
 seedScopeStore(NPM_GROUP_ID, "local", configs);
 const value = configs;
+
+export type NpmPackageConfig = Schema.infer<typeof npmPackageSchema>;
 
 export { configs, npmPackageSchema, value };
