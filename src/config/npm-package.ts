@@ -4,7 +4,7 @@ import { configFieldRegistry } from "../registries.ts";
 import { seedScopeStore } from "../config.ts";
 
 const NPM_GROUP_ID = "npm-package";
-const NPM_GROUP_URN = "config.npm-package";
+const NPM_GROUP_URN = "urn:config:npm-package";
 
 // Person schema (used for author, contributors, maintainers)
 const personSchema = Schema.union([
@@ -15,7 +15,7 @@ const personSchema = Schema.union([
     url: Schema.string().optional(),
   }),
 ]).register(configFieldRegistry, {
-  urn: "config.npm-package.person",
+  urn: "urn:config:npm-package.person",
   key: "person",
   groupId: NPM_GROUP_ID,
   title: "Person",
@@ -32,7 +32,7 @@ export const fundingSchema = Schema.union([
   fundingObjectSchema,
   Schema.array(Schema.union([Schema.string(), fundingObjectSchema])),
 ]).register(configFieldRegistry, {
-  urn: "config.npm-package.funding",
+  urn: "urn:config:npm-package.funding",
   key: "funding",
   groupId: NPM_GROUP_ID,
   title: "Person",
@@ -48,7 +48,7 @@ const repositoryValueSchema = Schema.union([
     directory: Schema.string().optional(),
   }),
 ]).register(configFieldRegistry, {
-  urn: "config.npm-package.repository",
+  urn: "urn:config:npm-package.repository",
   key: "repository",
   groupId: NPM_GROUP_ID,
   title: "Repository",
@@ -418,7 +418,7 @@ export const overridesSchema = Schema.config(Schema.record(Schema.string(), Sche
     title: "Overrides",
     description:
       "Replace a package in your dependency tree with another version or package entirely.",
-  
+
     examples: [{ vite: "npm:@voidzero-dev/vite-plus-core@1.0.0-rc.1" }],
   },
 );

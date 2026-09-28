@@ -45,7 +45,7 @@ export function seedScopeStore(groupId: string, scope: Scope, values: Record<str
 function normalizeIdentifier(str: string): string {
   return str
     .replace(/^urn:/i, "")
-    .replace(/^config\./i, "")
+    .replace(/^config[:.]/i, "")
     .replace(/[:._-]/g, "")
     .toLowerCase();
 }

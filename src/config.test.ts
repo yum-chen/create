@@ -41,6 +41,7 @@ test("Global Config.get and Config.set with full URN, with and without config. p
   Config.set("config.npm-package.version", "1.2.3");
   expect(Config.get("config.npm-package.version")).toBe("1.2.3");
   expect(Config.get("npmPackage:version")).toBe("1.2.3");
+  expect(Config.get("urn:config:npm-package.version")).toBe("1.2.3");
   expect(Config.get("urn:config.npm-package:version")).toBe("1.2.3");
 
   // Test full group get
@@ -51,13 +52,13 @@ test("Global Config.get and Config.set with full URN, with and without config. p
 test("Scope resolution and scope stores (local, user, system)", () => {
   // Register a custom test group
   Schema.config(Schema.string()).meta({
-    urn: "urn:config.appServer:host",
+    urn: "urn:config:appServer.host",
     key: "host",
     groupId: "app-server",
   });
 
   Schema.configGroup().meta({
-    urn: "urn:config.appServer",
+    urn: "urn:config:appServer",
     id: "app-server",
   });
 
