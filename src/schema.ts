@@ -1,15 +1,63 @@
-import { type ZodType, globalRegistry as defaultGlobalRegistry } from "zod";
-import {
-  buildGroupSchemaFromFields,
-  configFieldRegistry,
-  configGroupRegistry,
-  type MetadataConfigField,
-} from "./registries.ts";
+import { type ZodType, globalRegistry as defaultGlobalRegistry, object } from "zod";
+import type { MetadataConfigField, MetadataConfigGroup } from "./registries.ts";
 
 export * from "zod";
 export { z as s } from "zod";
 
 export type MetadataType = object | undefined;
+
+export const registeredFieldsMap = new Map<string, MetadataConfigField>();
+export const fieldsByGroupIdMap = new Map<
+  string,
+  Map<string, { schema: any; meta: MetadataConfigField }>
+>();
+export const registeredGroupsMap = new Map<string, { schema: any; meta: MetadataConfigGroup }>();
+
+export function isFieldRegistered(groupId: string, fieldKey: string): boolean {
+  return registeredFieldsMap.has(`${groupId}:${fieldKey}`);
+}
+
+export function getFieldsForGroupId(
+  groupId: string,
+): Map<string, { schema: any; meta: MetadataConfigField }> {
+  return fieldsByGroupIdMap.get(groupId) || new Map();
+}
+
+/**
+ * Dynamically builds a Zod object schema for a group ID from all registered fields in configFieldRegistry.
+ */
+export function buildGroupSchemaFromFields(groupId: string): any {
+  const fields = getFieldsForGroupId(groupId);
+  const shape: Record<string, any> = {};
+
+  for (const [key, fieldEntry] of fields.entries()) {
+    shape[key] = fieldEntry.schema.optional();
+  }
+
+  return object(shape).passthrough().readonly();
+}
+
+export function validateGroupFields(groupSchema: any, groupId: string) {
+  let shape = groupSchema?.shape || groupSchema?._def?.shape;
+  if (!shape && groupSchema?._def?.innerType) {
+    shape = groupSchema._def.innerType.shape || groupSchema._def.innerType._def?.shape;
+  }
+  if (!shape) return;
+  const missingKeys: string[] = [];
+
+  for (const fieldKey of Object.keys(shape)) {
+    const key = `${groupId}:${fieldKey}`;
+    if (!registeredFieldsMap.has(key)) {
+      missingKeys.push(fieldKey);
+    }
+  }
+
+  if (missingKeys.length > 0) {
+    throw new Error(
+      `Cannot register config group: field(s) [${missingKeys.join(", ")}] are missing or not registered in configFieldRegistry for groupId "${groupId}".`,
+    );
+  }
+}
 
 function createRegistryEntry(schema: any, meta: any): [any, any] & { schema: any; meta: any } {
   const tuple = [schema, meta] as any;
@@ -85,7 +133,7 @@ export class $SchemaRegistry<
     return this;
   }
 
-  get<S extends Schema>(schemaOrKey: S | string): any {
+  get<S extends Schema>(schemaOrKey: S | Schema | string): any {
     if (typeof schemaOrKey === "string") {
       const schema = this._idmap.get(schemaOrKey);
       if (schema) {
@@ -162,6 +210,22 @@ export function registry<
 }
 
 export const globalRegistry = registry<any>();
+
+let customFieldRegistryInstance: any;
+let customGroupRegistryInstance: any;
+
+export function registerCustomRegistry(type: "field" | "group", instance: any): void {
+  if (type === "field") customFieldRegistryInstance = instance;
+  if (type === "group") customGroupRegistryInstance = instance;
+}
+
+export function getConfigFieldRegistry(): any {
+  return customFieldRegistryInstance;
+}
+
+export function getConfigGroupRegistry(): any {
+  return customGroupRegistryInstance;
+}
 
 function getRegistry(registryOrGetter: any): any {
   return typeof registryOrGetter === "function" ? registryOrGetter() : registryOrGetter;
@@ -290,7 +354,7 @@ function createConfigWrapper<M>(registryTarget: any) {
 /**
  * Proxy for registering a single configuration field schema into `configFieldRegistry`.
  */
-export const config = createConfigWrapper<MetadataConfigField>(() => configFieldRegistry);
+export const config = createConfigWrapper<MetadataConfigField>(() => getConfigFieldRegistry());
 
 /**
  * Proxy for registering a configuration group schema into `configGroupRegistry`.
@@ -299,17 +363,17 @@ export const config = createConfigWrapper<MetadataConfigField>(() => configField
 export const configGroup = new Proxy(
   function (arg1?: any, arg2?: any) {
     if (arg1 && typeof arg1 === "object" && (arg1.id || arg1.urn) && !arg1._def) {
-      return createConfigProxy(undefined, () => configGroupRegistry, arg1);
+      return createConfigProxy(undefined, () => getConfigGroupRegistry(), arg1);
     }
-    return createConfigProxy(arg1, () => configGroupRegistry, arg2);
+    return createConfigProxy(arg1, () => getConfigGroupRegistry(), arg2);
   },
   {
     apply(_target, _thisArg, argArray: [any?, any?]) {
       const [arg1, arg2] = argArray;
       if (arg1 && typeof arg1 === "object" && (arg1.id || arg1.urn) && !arg1._def) {
-        return createConfigProxy(undefined, () => configGroupRegistry, arg1);
+        return createConfigProxy(undefined, () => getConfigGroupRegistry(), arg1);
       }
-      return createConfigProxy(arg1, () => configGroupRegistry, arg2);
+      return createConfigProxy(arg1, () => getConfigGroupRegistry(), arg2);
     },
   },
 ) as any;

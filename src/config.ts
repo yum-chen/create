@@ -1,12 +1,12 @@
 import type { ZodType, input as ZodInput, output as ZodOutput } from "zod";
 import type { NpmPackageConfig } from "./config/npm-package.ts";
+import type { MetadataConfigGroup } from "./registries.ts";
 import {
   buildGroupSchemaFromFields,
   getFieldsForGroupId,
   isFieldRegistered,
   registeredGroupsMap,
-  type MetadataConfigGroup,
-} from "./registries.ts";
+} from "./schema.ts";
 
 export interface UserConfigGroupMap {
   "npm-package-json": NpmPackageConfig;
